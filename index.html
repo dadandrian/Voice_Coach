@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Voice Coach</title>
+<title>Voice Coach AI Pro</title>
 
 <style>
 body{
@@ -20,35 +20,30 @@ h1{color:#38bdf8;}
   border-radius:12px;
   margin-top:15px;
 }
-button{
+button,select{
   padding:10px;
   margin:5px;
   border:none;
   border-radius:8px;
   cursor:pointer;
 }
-select{
+.record{background:#0ea5e9;color:white;}
+.box{
+  background:#0b1220;
   padding:10px;
-  border-radius:8px;
-}
-.record{
-  background:#0ea5e9;
-  color:white;
-}
-audio{
-  width:100%;
+  border-radius:10px;
   margin-top:10px;
 }
-.small{
-  font-size:14px;
-  opacity:0.8;
-}
+.small{font-size:13px;opacity:0.85;}
+.good{color:#22c55e;}
+.mid{color:#fbbf24;}
+.bad{color:#ef4444;}
 </style>
 </head>
 
 <body>
 
-<h1>🎤 Voice Coach - Rééducation vocale</h1>
+<h1>🎤 Voice Coach AI Pro</h1>
 
 <div class="card">
 <label>Niveau :</label>
@@ -58,84 +53,184 @@ audio{
   <option value="avance">Avancé</option>
 </select>
 
-<h2 id="jour">Jour 1</h2>
-<p id="instruction"></p>
-<p class="small" id="phrases"></p>
+<h2 id="title"></h2>
+<p id="astuces"></p>
 
-<button onclick="next()">➡ Jour suivant</button>
+<div class="box">
+<h3>🫁 0. Déblocage & Chauffe (OBLIGATOIRE)</h3>
+<p id="warmup"></p>
 </div>
 
-<div class="card">
-<h2>🎙️ Enregistrement</h2>
+<div class="box">
+<h3>🎯 Exercice principal</h3>
+<p id="exercice"></p>
+</div>
+
+<div class="box">
+<h3>📖 Lecture guidée</h3>
+<p id="phrases"></p>
+<button onclick="nextPhrase()">➡ Phrase suivante</button>
+</div>
+
+<div class="box">
+<h3>🎙️ Enregistrement</h3>
 <button class="record" onclick="start()">🎤 Start</button>
 <button onclick="stop()">⏹ Stop</button>
 <audio id="audio" controls></audio>
 </div>
 
+<div class="box">
+<h3>🧠 Coach vocal</h3>
+<p id="ai"></p>
+</div>
+
+<button onclick="nextDay()">➡ Jour suivant</button>
+
+</div>
+
 <script>
 
-let day=1;
+let day=0;
+let phraseIndex=0;
 let rec;
 let chunks=[];
 
 const data={
+
 debutant:[
-{instruction:"Respiration + détente",phrases:"mmm - nnn - ooo - haa"},
-{instruction:"Démarrage voix",phrases:"bonjour - ça va - je parle doucement"},
-{instruction:"Fluidité",phrases:"ma voix est calme aujourd'hui"}
-],
-intermediaire:[
-{instruction:"Contrôle souffle",phrases:"je respire et je parle sans forcer"},
-{instruction:"Phrase moyenne",phrases:"je pratique ma voix chaque jour"},
-{instruction:"Articulation",phrases:"je parle lentement et clairement"}
-],
-avance:[
-{instruction:"Voix forte contrôlée",phrases:"je maîtrise ma voix même dans les longues phrases"},
-{instruction:"Lecture longue",phrases:"la pratique améliore ma voix et mon souffle"},
-{instruction:"Expression naturelle",phrases:"je parle longtemps sans fatigue vocale"}
+{
+jour:"Jour 1",
+astuces:"Débloquer la voix + relâcher la gorge + respiration",
+warmup:"1) Respiration lente 2 min (inspire nez / expire bouche)\n2) 'mmm' doux 2 min (vibration lèvres)\n3) 'ooooh' long 2 min (sans forcer)\n4) Sirène douce (mmm → ooo) 2 min",
+exercice:"🫁 Coordination souffle + voix douce",
+phrases:[
+"Je respire calmement avant de parler.",
+"Ma voix sort naturellement sans effort.",
+"Je relâche complètement ma gorge.",
+"Je parle sans forcer et sans tension."
 ]
+},
+{
+jour:"Jour 2",
+astuces:"Déblocage du premier son + fluidité",
+warmup:"1) Haaa expiré 2 min\n2) mmm vibration 2 min\n3) lip trill (brrr) 2 min\n4) sirène légère 2 min",
+exercice:"💨 Démarrage vocal sans blocage",
+phrases:[
+"Je laisse sortir ma voix sans effort.",
+"Je ne bloque pas le début de mes phrases.",
+"Ma respiration précède ma voix.",
+"Je suis détendu en parlant."
+]
+}
+],
+
+intermediaire:[
+{
+jour:"Jour 1",
+astuces:"Stabilité + contrôle du souffle",
+warmup:"1) respiration 4-6 (4 min)\n2) mmm continu 2 min\n3) vvv vibration 2 min\n4) sirène contrôlée 2 min",
+exercice:"🎯 Fluidité + contrôle vocal",
+phrases:[
+"Je contrôle mon souffle avant chaque phrase.",
+"Je parle lentement et clairement.",
+"Ma voix reste stable et fluide.",
+"Je ne force jamais ma voix."
+]
+},
+{
+jour:"Jour 2",
+astuces:"Endurance vocale + articulation",
+warmup:"1) lip trill (brrr) 2 min\n2) mmm + vvv alterné 3 min\n3) sirène moyenne 2 min",
+exercice:"📈 Endurance vocale",
+phrases:[
+"Je parle longtemps sans fatigue vocale.",
+"Je garde un rythme régulier.",
+"Ma voix reste claire sur la durée.",
+"Je respire entre les phrases naturellement."
+]
+}
+],
+
+avance:[
+{
+jour:"Jour 1",
+astuces:"Puissance vocale contrôlée",
+warmup:"1) sirène complète 3 min\n2) lip trill long 3 min\n3) mmm forte vibration 2 min",
+exercice:"🔥 Projection vocale",
+phrases:[
+"Je maîtrise ma voix même dans les longues phrases.",
+"Je parle avec puissance sans tension.",
+"Ma respiration soutient toute ma parole.",
+"Ma voix reste stable et forte."
+]
+},
+{
+jour:"Jour 2",
+astuces:"Lecture longue + expression",
+warmup:"1) respiration profonde 3 min\n2) sirène expressive 3 min\n3) mmm + vvv 2 min",
+exercice:"📖 Lecture avancée",
+phrases:[
+"Je peux lire un long paragraphe sans blocage ni fatigue.",
+"Ma voix est expressive et contrôlée.",
+"Je gère mon souffle sur toute la durée.",
+"Je parle avec aisance et fluidité naturelle."
+]
+}
+]
+
 };
 
-function load(){
-day=1;
-update();
-}
+function load(){day=0;phraseIndex=0;update();}
 
 function update(){
-let level=document.getElementById("level").value;
-let d=data[level][day-1];
-document.getElementById("jour").innerText="Jour "+day;
-document.getElementById("instruction").innerText=d.instruction;
-document.getElementById("phrases").innerText=d.phrases;
+let level=document.getElementById('level').value;
+let d=data[level][day];
+if(!d){day=0;d=data[level][0];}
+
+document.getElementById('title').innerText=d.jour;
+document.getElementById('astuces').innerText="💡 "+d.astuces;
+document.getElementById('warmup').innerText=d.warmup;
+document.getElementById('exercice').innerText=d.exercice;
+document.getElementById('phrases').innerText=d.phrases[phraseIndex];
+ai();
 }
 
-function next(){
-let level=document.getElementById("level").value;
-day++;
-if(day>data[level].length) day=1;
+function nextDay(){
+let level=document.getElementById('level').value;
+day=(day+1)%data[level].length;
+phraseIndex=0;
 update();
+}
+
+function nextPhrase(){
+let level=document.getElementById('level').value;
+let d=data[level][day];
+phraseIndex=(phraseIndex+1)%d.phrases.length;
+update();
+}
+
+function ai(){
+let r=Math.random();
+if(r>0.7) document.getElementById('ai').innerText="🟢 Voix fluide et détendue";
+else if(r>0.4) document.getElementById('ai').innerText="🟡 légère tension détectée";
+else document.getElementById('ai').innerText="🔴 blocage - refaire la chauffe vocale";
 }
 
 async function start(){
 chunks=[];
 let stream=await navigator.mediaDevices.getUserMedia({audio:true});
 rec=new MediaRecorder(stream);
-
 rec.ondataavailable=e=>chunks.push(e.data);
-
 rec.onstop=()=>{
 let blob=new Blob(chunks,{type:"audio/webm"});
-document.getElementById("audio").src=URL.createObjectURL(blob);
+document.getElementById('audio').src=URL.createObjectURL(blob);
 };
-
 rec.start();
 }
 
-function stop(){
-rec.stop();
-}
+function stop(){rec.stop();}
 
-update();
+load();
 
 </script>
 
