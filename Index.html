@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Voice Coach</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:white;
+  margin:0;
+  padding:20px;
+}
+h1{color:#38bdf8;}
+.card{
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+  margin-top:15px;
+}
+button{
+  padding:10px;
+  margin:5px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+select{
+  padding:10px;
+  border-radius:8px;
+}
+.record{
+  background:#0ea5e9;
+  color:white;
+}
+audio{
+  width:100%;
+  margin-top:10px;
+}
+.small{
+  font-size:14px;
+  opacity:0.8;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎤 Voice Coach - Rééducation vocale</h1>
+
+<div class="card">
+<label>Niveau :</label>
+<select id="level" onchange="load()">
+  <option value="debutant">Débutant</option>
+  <option value="intermediaire">Intermédiaire</option>
+  <option value="avance">Avancé</option>
+</select>
+
+<h2 id="jour">Jour 1</h2>
+<p id="instruction"></p>
+<p class="small" id="phrases"></p>
+
+<button onclick="next()">➡ Jour suivant</button>
+</div>
+
+<div class="card">
+<h2>🎙️ Enregistrement</h2>
+<button class="record" onclick="start()">🎤 Start</button>
+<button onclick="stop()">⏹ Stop</button>
+<audio id="audio" controls></audio>
+</div>
+
+<script>
+
+let day=1;
+let rec;
+let chunks=[];
+
+const data={
+debutant:[
+{instruction:"Respiration + détente",phrases:"mmm - nnn - ooo - haa"},
+{instruction:"Démarrage voix",phrases:"bonjour - ça va - je parle doucement"},
+{instruction:"Fluidité",phrases:"ma voix est calme aujourd'hui"}
+],
+intermediaire:[
+{instruction:"Contrôle souffle",phrases:"je respire et je parle sans forcer"},
+{instruction:"Phrase moyenne",phrases:"je pratique ma voix chaque jour"},
+{instruction:"Articulation",phrases:"je parle lentement et clairement"}
+],
+avance:[
+{instruction:"Voix forte contrôlée",phrases:"je maîtrise ma voix même dans les longues phrases"},
+{instruction:"Lecture longue",phrases:"la pratique améliore ma voix et mon souffle"},
+{instruction:"Expression naturelle",phrases:"je parle longtemps sans fatigue vocale"}
+]
+};
+
+function load(){
+day=1;
+update();
+}
+
+function update(){
+let level=document.getElementById("level").value;
+let d=data[level][day-1];
+document.getElementById("jour").innerText="Jour "+day;
+document.getElementById("instruction").innerText=d.instruction;
+document.getElementById("phrases").innerText=d.phrases;
+}
+
+function next(){
+let level=document.getElementById("level").value;
+day++;
+if(day>data[level].length) day=1;
+update();
+}
+
+async function start(){
+chunks=[];
+let stream=await navigator.mediaDevices.getUserMedia({audio:true});
+rec=new MediaRecorder(stream);
+
+rec.ondataavailable=e=>chunks.push(e.data);
+
+rec.onstop=()=>{
+let blob=new Blob(chunks,{type:"audio/webm"});
+document.getElementById("audio").src=URL.createObjectURL(blob);
+};
+
+rec.start();
+}
+
+function stop(){
+rec.stop();
+}
+
+update();
+
+</script>
+
+</body>
+</html>
